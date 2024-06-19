@@ -15,7 +15,7 @@ class AIAssistant(Document):
 
     def get_chatgpt_response(self, text):
         api_url = "https://api.openai.com/v1/chat/completions"
-        api_key = "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"  # Use environment variables or secure storage for production
+        api_key = "Your key here"  # Use environment variables or secure storage for production
         headers = {
             "Content-Type": "application/json",
             "Authorization": f"Bearer {api_key}"
