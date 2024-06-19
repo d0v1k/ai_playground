@@ -1,0 +1,31 @@
+frappe.ui.form.on('AI Assistant', {
+    onload: function(frm) {
+        frm.disable_save();
+        frm.set_df_property('chatbox', 'read_only', 1);
+    }
+});
+
+frappe.ui.form.on('AI Assistant', {
+    send(frm) {  // Triggered by the 'send' button
+        // Call the server-side function when the button is clicked.
+        frm.call({
+            method: "send_message",
+            doc: frm.doc,
+            callback: function(r) {
+                if (!r.exc) {
+                    // Update the 'chatbox' field with the response from ChatGPT.
+                    frm.set_value('chatbox', r.message);
+                    frm.refresh_field('chatbox');
+                } else {
+                    // Optionally handle any exceptions or errors
+                    frappe.msgprint({
+                        title: __('Error'),
+                        indicator: 'red',
+                        message: 'Failed to get a response. Please try again.'
+                    });
+                }
+            }
+        });
+    }
+});
+

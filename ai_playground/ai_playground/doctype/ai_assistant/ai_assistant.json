@@ -1,0 +1,57 @@
+{
+ "actions": [],
+ "allow_copy": 1,
+ "allow_rename": 1,
+ "creation": "2024-05-06 14:42:48.855914",
+ "default_view": "List",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "chatbox",
+  "message",
+  "send"
+ ],
+ "fields": [
+  {
+   "default": "How may i help you?",
+   "fieldname": "chatbox",
+   "fieldtype": "Text",
+   "max_height": "250px",
+   "read_only": 1
+  },
+  {
+   "fieldname": "send",
+   "fieldtype": "Button",
+   "label": "Send"
+  },
+  {
+   "fieldname": "message",
+   "fieldtype": "Text",
+   "max_height": "35px"
+  }
+ ],
+ "hide_toolbar": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2024-05-07 23:16:31.773587",
+ "modified_by": "Administrator",
+ "module": "AI Playground",
+ "name": "AI Assistant",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

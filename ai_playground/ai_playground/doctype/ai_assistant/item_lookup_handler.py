@@ -1,0 +1,68 @@
+import frappe
+import re
+
+def process_item_lookup(user_input):
+    item_code = extract_item_identifier(user_input)
+    if not item_code:
+        return "Please provide a valid item code in the format 'number-number'."
+
+    default_company = frappe.defaults.get_user_default("company")
+    if not default_company:
+        return "No default company set in the system."
+
+    items = [{"item_code": item_code}]
+    items_with_details = get_existing_stock_qty(items, default_company)
+    if items_with_details and "qty" in items_with_details[0]:
+        item_details = items_with_details[0]
+        return (f"PLU Code: {item_details['cb_plu']}\n"
+                f"Item Name: {item_details['item_name']}\n"
+                f"Item Group: {item_details['item_group']}\n"
+                f"Actual Stock: {item_details['qty']}")
+    else:
+        return "Item details not found."
+
+def extract_item_identifier(user_input):
+    # Use regular expression to extract item code in the format number-number
+    match = re.search(r'\b\d+-\d+\b', user_input)
+    if match:
+        return match.group()
+    return None
+
+def get_existing_stock_qty(items, company):
+    warehouses = get_company_warehouses(company)
+    if not warehouses:
+        return items  # Return early if no warehouses
+
+    items_list = tuple([item["item_code"] for item in items])
+    if not items_list:
+        return items  # Return early if no items
+
+    items_list_str = f"('{items_list[0]}')" if len(items_list) == 1 else str(items_list)
+    warehouses_str = f"('{warehouses[0]}')" if len(warehouses) == 1 else str(warehouses)
+
+    query = f"""
+        SELECT i.item_code, i.item_name, i.item_group, i.cb_plu, SUM(b.actual_qty) AS qty
+        FROM `tabBin` AS b
+        JOIN `tabItem` AS i ON i.item_code = b.item_code
+        WHERE b.warehouse IN {warehouses_str} AND b.item_code IN {items_list_str}
+        GROUP BY b.item_code
+    """
+    quantities = frappe.db.sql(query, as_dict=True)
+
+    # Map each item to its details
+    details_map = {q["item_code"]: {"item_name": q["item_name"], "item_group": q["item_group"], "cb_plu": q["cb_plu"], "qty": q["qty"]} for q in quantities}
+    for item in items:
+        details = details_map.get(item["item_code"], None)
+        if details:
+            item.update(details)
+        else:
+            item.update({"item_name": "Not Found", "item_group": "Not Found", "cb_plu": "Not Found", "qty": 0})
+
+    return items
+
+def get_company_warehouses(company):
+    """Retrieve all non-group warehouses for the specified company."""
+    warehouses = frappe.get_all(
+        "Warehouse", filters={"company": company, "is_group": 0}, pluck="name"
+    )
+    return tuple(warehouses)

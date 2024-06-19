@@ -4,4 +4,4 @@ AI Chatbox for ERPNext
 
 #### License
 
-MIT
+MIT# ai_playground
